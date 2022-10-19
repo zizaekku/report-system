@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # 생성 앱
     'pdf',
+    'upload',
 ]
 
 MIDDLEWARE = [
