@@ -1,8 +1,34 @@
 import os
 import win32com.client as win32
+from upload.models import Data
+import json
+import re
 
 # Create your views here.
+
+def get_excel_cell(col, row):
+    data = Data.objects.get(pk=4)
+    data_json = json.loads(data.data)
+    # print(col+str(row))
+    cell = data_json.get(col)[row-1]
+    print(cell)
+    return cell
+
 def create_report():
+
+    # mapping_string = ["U3", "U4", "AA17"]
+
+    # for ms in mapping_string:
+    #     print(ms)
+    #     col_arr = re.findall('[a-zA-Z]', ms)
+    #     row_arr = re.findall('\d', ms)
+
+    #     col = ' '.join(c for c in col_arr)
+    #     row = ' '.join(r for r in row_arr)
+
+    #     print(col, row)
+
+    # return
 
     # hwp 파일 열기
     file_root = os.path.abspath(os.path.join(
@@ -19,7 +45,8 @@ def create_report():
     hwp.HAction.GetDefault("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
     option=hwp.HParameterSet.HFindReplace
     option.FindString = "U3"
-    option.ReplaceString = "YEPPI YEPPI"
+    # option.ReplaceString = "YEPPI YEPPI"
+    option.ReplaceString = get_excel_cell("U", 3)
     option.IgnoreMessage = 1
 
     # 모두 찾아 바꾸기 실행
