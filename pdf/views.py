@@ -1,34 +1,23 @@
+from http.client import ImproperConnectionState
 import os
 import win32com.client as win32
 from upload.models import Data
 import json
 import re
+from .models import *
 
 # Create your views here.
 
 def get_excel_cell(col, row):
     data = Data.objects.get(pk=4)
     data_json = json.loads(data.data)
-    # print(col+str(row))
-    cell = data_json.get(col)[row-1]
+    cell = data_json.get(col)[row-2]
     print(cell)
     return cell
 
 def create_report():
 
-    # mapping_string = ["U3", "U4", "AA17"]
-
-    # for ms in mapping_string:
-    #     print(ms)
-    #     col_arr = re.findall('[a-zA-Z]', ms)
-    #     row_arr = re.findall('\d', ms)
-
-    #     col = ' '.join(c for c in col_arr)
-    #     row = ' '.join(r for r in row_arr)
-
-    #     print(col, row)
-
-    # return
+    mapping_string = Mapping.objects.all()
 
     # hwp 파일 열기
     file_root = os.path.abspath(os.path.join(
@@ -41,22 +30,32 @@ def create_report():
     hwp=win32.gencache.EnsureDispatch("HWPFrame.HwpObject")
     hwp.Open(file_path,"HWP","forceopen:true")
 
-    # 모두 찾아 바꾸기 세부 설정
-    hwp.HAction.GetDefault("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
-    option=hwp.HParameterSet.HFindReplace
-    option.FindString = "U3"
-    # option.ReplaceString = "YEPPI YEPPI"
-    option.ReplaceString = get_excel_cell("U", 3)
-    option.IgnoreMessage = 1
+    for ms in mapping_string:
+        findstring = "[ " + str(ms) + " ]"
+        print(findstring)
 
-    # 모두 찾아 바꾸기 실행
-    hwp.HAction.Execute("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
+        # 모두 찾아 바꾸기 세부 설정
+        hwp.HAction.GetDefault("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
+        option=hwp.HParameterSet.HFindReplace
+        option.FindString = findstring
+        option.ReplaceString = get_excel_cell(ms.col, ms.row)
+        option.IgnoreMessage = 1
+
+        # 모두 찾아 바꾸기 실행
+        hwp.HAction.Execute("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
 
     # 다른 이름으로 저장
-    new_file_path = file_root + "/new_report.hwp"
+    u3 = Mapping.objects.get(col="U", row=3)
+    u3_cell = get_excel_cell(u3.col, u3.row)
+    u4 = Mapping.objects.get(col="U", row=4)
+    u4_cell = get_excel_cell(u4.col, u4.row)
+
+    new_filename = u3_cell + u4_cell + " 용역 최종보고서.hwp"
+    
+    new_file_path = file_root + "/" + new_filename
     hwp.SaveAs(new_file_path)
 
     # 닫기
     hwp.Quit()
 
-    print("replace success")
+    print("create report success")
