@@ -4,8 +4,11 @@ from django.shortcuts import render
 from openpyxl import load_workbook
 from io import BytesIO
 import json
+import os
+from PIL import Image as PIL_Image
+from django.core.files.base import ContentFile
 
-from upload.models import Data
+from upload.models import *
 
 # Create your views here,
 def upload(request):
@@ -118,3 +121,29 @@ def upload(request):
                             )
 
     return HttpResponse("업로드가 완료됐쿠")
+
+
+def upload_images():
+    image_root = os.path.abspath(os.path.join(
+        "images"
+    ))
+
+    images = os.listdir(image_root)
+    bulk_list = []
+    for img in images:
+        image_path = image_root + "/" + img
+
+        image = PIL_Image.open(image_path)  # 이미지 파일 열기
+        image = image.convert("RGB")
+        image_io = BytesIO()
+        image.save(image_io, format="JPEG", quality=100)
+        image_content = ContentFile(image_io.getvalue(), img)
+
+        bulk_list.append(
+            Image(
+                image=image_content
+            )
+        )
+
+    i = Image.objects.bulk_create(bulk_list)
+    print("image upload success")
