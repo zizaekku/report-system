@@ -13,6 +13,9 @@ def get_excel_cell(col, row):
     data_json = json.loads(data.data)
     cell = data_json.get(col)[row-2]
     print(cell)
+    if cell == None:
+        print("없대")
+        cell = "-"
     return cell
 
 def create_report():
