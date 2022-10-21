@@ -5,6 +5,9 @@ from upload.models import Data
 import json
 import re
 from .models import *
+from upload.models import *
+from tkinter import Tk
+from tkinter.filedialog import askopenfilenames
 
 # Create your views here.
 
@@ -14,7 +17,6 @@ def get_excel_cell(col, row):
     cell = data_json.get(col)[row-2]
     print(cell)
     if cell == None:
-        print("없대")
         cell = "-"
     return cell
 
@@ -62,3 +64,23 @@ def create_report():
     hwp.Quit()
 
     print("create report success")
+
+
+def insert_image():
+
+    file_root = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        "file"
+    ))
+
+    file_path = file_root + "/report_template.hwp"
+
+    hwp=win32.gencache.EnsureDispatch("HWPFrame.HwpObject")
+    hwp.Open(file_path,"HWP","forceopen:true")
+
+    image = Image.objects.get(pk=144)
+
+    hwp.InsertPicture(image.image.path, Embedded=True)
+
+    hwp.SaveAs(file_root + "/insertimagetest.hwp")
+    hwp.Quit()
