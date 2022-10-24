@@ -5,6 +5,9 @@ from upload.models import Data
 import json
 import re
 from .models import *
+from upload.models import *
+from tkinter import Tk
+from tkinter.filedialog import askopenfilenames
 
 # Create your views here.
 
@@ -13,6 +16,8 @@ def get_excel_cell(col, row):
     data_json = json.loads(data.data)
     cell = data_json.get(col)[row-2]
     print(cell)
+    if cell == None:
+        cell = "-"
     return cell
 
 def create_report():
@@ -59,3 +64,43 @@ def create_report():
     hwp.Quit()
 
     print("create report success")
+
+
+def insert_image():
+
+    file_root = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        "file"
+    ))
+
+    file_path = file_root + "/report_template.hwp"
+
+    hwp=win32.gencache.EnsureDispatch("HWPFrame.HwpObject")
+    hwp.Open(file_path,"HWP","forceopen:true")
+
+    image = Image.objects.get(pk=144)
+
+    hwp.InsertPicture(image.image.path, Embedded=True) # 이미지 삽입
+    hwp.FindCtrl() # 이미지 선택
+    hwp.HAction.Run("Cut") # 잘라내기 (커서에서 인접한 개체 선택)
+
+    while True:
+
+        # 이미지 삽입할 위치 찾기
+        hwp.HAction.GetDefault("RepeatFind", hwp.HParameterSet.HFindReplace.HSet)
+        hwp.HParameterSet.HFindReplace.FindString = "[ U18 ]"
+        hwp.HParameterSet.HFindReplace.IgnoreMessage = 1
+        result = hwp.HAction.Execute("RepeatFind", hwp.HParameterSet.HFindReplace.HSet)
+        print("=>", result)
+
+        # 다 바꿨으면 종료
+        if result == False:
+            break
+
+        # 이미지 붙여넣기
+        hwp.HAction.GetDefault("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
+        hwp.HAction.Execute("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
+
+
+    hwp.SaveAs(file_root + "/insertimagetest.hwp")
+    hwp.Quit()
