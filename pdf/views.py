@@ -47,8 +47,37 @@ def create_report():
         option.ReplaceString = get_excel_cell(ms.col, ms.row)
         option.IgnoreMessage = 1
 
-        # 모두 찾아 바꾸기 실행
-        hwp.HAction.Execute("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
+        if "image" in str(option.ReplaceString):
+            print("이미지")
+            image = Image.objects.get(image=option.ReplaceString+".png")
+            # print(image)
+            hwp.InsertPicture(image.image.path, Embedded=True) # 이미지 삽입
+
+            hwp.FindCtrl() # 이미지 선택
+            hwp.HAction.Run("Cut") # 잘라내기 (커서에서 인접한 개체 선택)
+
+            while True:
+
+                # 이미지 삽입할 위치 찾기
+                hwp.HAction.GetDefault("RepeatFind", hwp.HParameterSet.HFindReplace.HSet)
+                hwp.HParameterSet.HFindReplace.FindString = findstring
+                hwp.HParameterSet.HFindReplace.IgnoreMessage = 1
+                result = hwp.HAction.Execute("RepeatFind", hwp.HParameterSet.HFindReplace.HSet)
+                print("=>", result)
+
+                # 다 바꿨으면 종료
+                if result == False:
+                    break
+
+                # 이미지 붙여넣기
+                hwp.HAction.GetDefault("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
+                hwp.HAction.Execute("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
+
+        else:
+            print("텍스트")
+
+            # 모두 찾아 바꾸기 실행
+            hwp.HAction.Execute("AllReplace", hwp.HParameterSet.HFindReplace.HSet)
 
     # 다른 이름으로 저장
     u3 = Mapping.objects.get(col="U", row=3)
