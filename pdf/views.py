@@ -7,6 +7,7 @@ from upload.models import *
 from django.shortcuts import render
 import pythoncom
 
+
 # Create your views here.
 def home(request):
     create_report()
