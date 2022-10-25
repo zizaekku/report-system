@@ -1,15 +1,16 @@
-from http.client import ImproperConnectionState
 import os
 import win32com.client as win32
 from upload.models import Data
 import json
-import re
 from .models import *
 from upload.models import *
-from tkinter import Tk
-from tkinter.filedialog import askopenfilenames
+from django.shortcuts import render
+import pythoncom
 
 # Create your views here.
+def home(request):
+    create_report()
+    return render(request, 'home.html')
 
 def get_excel_cell(col, row):
     data = Data.objects.get(pk=4)
@@ -22,6 +23,8 @@ def get_excel_cell(col, row):
 
 def create_report():
 
+    pythoncom.CoInitialize()
+
     mapping_string = Mapping.objects.all()
 
     # hwp 파일 열기
@@ -32,8 +35,12 @@ def create_report():
 
     file_path = file_root + "/report_template.hwp"
 
+    print("A")
+
     hwp=win32.gencache.EnsureDispatch("HWPFrame.HwpObject")
     hwp.Open(file_path,"HWP","forceopen:true")
+    
+    print("B")
 
     for ms in mapping_string:
         findstring = "[ " + str(ms) + " ]"
@@ -91,6 +98,8 @@ def create_report():
 
     # 닫기
     hwp.Quit()
+
+    pythoncom.CoUninitialize()
 
     print("create report success")
 

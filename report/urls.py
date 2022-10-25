@@ -23,4 +23,5 @@ urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('upload/', include('upload.urls')),
+    path('pdf/', include('pdf.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
