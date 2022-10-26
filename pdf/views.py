@@ -36,13 +36,9 @@ def create_report():
 
     file_path = file_root + "/report_template.hwp"
 
-    print("A")
-
     hwp=win32.gencache.EnsureDispatch("HWPFrame.HwpObject")
     hwp.Open(file_path,"HWP","forceopen:true")
     
-    print("B")
-
     for ms in mapping_string:
         findstring = "[ " + str(ms) + " ]"
         print(findstring)
