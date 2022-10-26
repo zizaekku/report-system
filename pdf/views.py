@@ -1,4 +1,5 @@
 import os
+from django.http import FileResponse
 import win32com.client as win32
 from upload.models import Data
 import json
@@ -6,7 +7,7 @@ from .models import *
 from upload.models import *
 from django.shortcuts import render
 import pythoncom
-
+from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
 def get_excel_cell(col, row):
@@ -95,6 +96,11 @@ def create_report(request):
     pythoncom.CoUninitialize()
 
     print("create report success")
+
+    fs = FileSystemStorage(new_file_path)
+    response = FileResponse(fs.open(new_file_path, 'rb'), filename=new_filename)
+
+    return response
 
 
 def insert_image():
