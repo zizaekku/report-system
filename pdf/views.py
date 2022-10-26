@@ -9,10 +9,6 @@ import pythoncom
 
 
 # Create your views here.
-def home(request):
-    create_report()
-    return render(request, 'home.html')
-
 def get_excel_cell(col, row):
     data = Data.objects.get(pk=4)
     data_json = json.loads(data.data)
@@ -22,7 +18,7 @@ def get_excel_cell(col, row):
         cell = "-"
     return cell
 
-def create_report():
+def create_report(request):
 
     pythoncom.CoInitialize()
 
