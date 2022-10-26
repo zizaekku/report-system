@@ -4,5 +4,5 @@ from .views import *
 app_name = 'pdf'
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', create_report, name='create'),
 ]
