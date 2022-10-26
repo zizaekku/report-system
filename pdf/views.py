@@ -136,7 +136,8 @@ def insert_image():
 
         # 이미지 붙여넣기
         hwp.HAction.GetDefault("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
-        hwp.HAction.Execute("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
+        result = hwp.HAction.Execute("Paste", hwp.HParameterSet.HSelectionOpt.HSet)
+        print("붙여넣기=>", result)
 
 
     hwp.SaveAs(file_root + "/insertimagetest.hwp")
